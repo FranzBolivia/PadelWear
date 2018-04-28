@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.padelwear">
-
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-feature android:name="android.hardware.type.watch" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -40,5 +40,7 @@
         <activity android:name=".CuentaAtras"/>
         <activity android:name="android.support.wearable.activity.ConfirmationActivity"/>
         <activity android:name=".SwipeDismiss"/>
+        <activity android:name=".Contador"
+            android:theme="@style/AppThemeNoSwipeToDismiss"/>
     </application>
 </manifest>

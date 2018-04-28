@@ -33,6 +33,9 @@ public class MainActivity extends WearableActivity {
                                              public void onClick(View v) {
                                                  Integer tag = (Integer) v.getTag();
                                                  switch (tag) {
+                                                     case 0:
+                                                         startActivity(new Intent(MainActivity.this, Contador.class));
+                                                         break;
                                                      case 1:
                                                          startActivity(new Intent(MainActivity.this, Confirmacion.class));
                                                          break;

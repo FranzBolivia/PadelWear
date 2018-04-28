@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.wearable.view.BoxInsetLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:background="@drawable/escudo_upv_cuadrado">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        app:layout_box="left|bottom|right">
+        <TextView
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="¿Quieres actualizar los datos?"
+            android:textColor="@color/dark_blue"
+            android:background="#e4c8c8c8"/>
+        <ImageButton
+            android:id="@+id/aceptar"
+            android:background="@null"
+            android:layout_gravity="bottom|left"
+            android:layout_height="50dp"
+            android:layout_width="50dp"
+            android:src="@drawable/aceptar" />
+        <ImageButton
+            android:id="@+id/cancelar"
+            android:background="@null"
+            android:layout_gravity="bottom|right"
+            android:layout_height="50dp"
+            android:layout_width="50dp"
+            android:src="@drawable/cancelar" />
+    </FrameLayout>
+</android.support.wearable.view.BoxInsetLayout>

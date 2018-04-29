@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.padelwear">
+
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-feature android:name="android.hardware.type.watch" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -14,7 +14,9 @@
         android:theme="@android:style/Theme.DeviceDefault">
         <uses-library
             android:name="com.google.android.wearable"
-            android:required="true" />
+            android:required="false" />
+
+
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -34,13 +36,14 @@
         </activity>
 
 
-    <activity android:name=".Confirmacion"/>
-        <activity android:name=".Pasos"/>
-        <activity android:name=".Historial"/>
-        <activity android:name=".CuentaAtras"/>
-        <activity android:name="android.support.wearable.activity.ConfirmationActivity"/>
-        <activity android:name=".SwipeDismiss"/>
-        <activity android:name=".Contador"
-            android:theme="@style/AppThemeNoSwipeToDismiss"/>
+        <activity android:name=".Confirmacion" />
+        <activity android:name=".Pasos" />
+        <activity android:name=".Historial" />
+        <activity android:name=".CuentaAtras" />
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
+        <activity android:name=".SwipeDismiss" />
+        <activity
+            android:name=".Contador"
+            android:theme="@style/AppThemeNoSwipeToDismiss" />
     </application>
 </manifest>

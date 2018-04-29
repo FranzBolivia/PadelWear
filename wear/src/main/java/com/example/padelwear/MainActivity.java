@@ -1,6 +1,7 @@
 package com.example.padelwear;
 
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import android.support.wear.widget.WearableLinearLayoutManager;
@@ -15,13 +16,15 @@ import android.widget.Toast;
 
 public class MainActivity extends WearableActivity {
     String[] elementos = {"Partida", "Terminar partida", "Historial",
-            "Notificación", "Pasos", "Pulsaciones", "Terminar partida","Dismiss"};
+            "Notificación", "Pasos", "Pulsaciones", "Terminar partida", "Dismiss"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        setAmbientEnabled();
         setContentView(R.layout.activity_main);
+
         WearableRecyclerView lista = (WearableRecyclerView) findViewById(R.id.lista);
         lista.setEdgeItemsCenteringEnabled(true);
         lista.setLayoutManager(new WearableLinearLayoutManager(this,
@@ -58,4 +61,6 @@ public class MainActivity extends WearableActivity {
         lista.setScrollDegreesPerScreen(180);
         lista.setBezelFraction(0.5f);
     }
+
+
 }

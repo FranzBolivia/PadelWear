@@ -31,6 +31,8 @@ public class Contador extends WearableActivity {
     private Typeface fuenteNormal = Typeface.create("sans-serif", Typeface.NORMAL);
     private Typeface fuenteFina = Typeface.create("sans-serif-thin", Typeface.NORMAL);
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -18,6 +18,7 @@ import com.example.comun.Partida;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
@@ -34,7 +35,7 @@ import com.google.android.gms.wearable.Wearable;
 /**
  * Created by daniel on 22/05/2017.
  */
-public class Contador extends Activity {
+public class Contador extends Activity implements DataClient.OnDataChangedListener {
     public Partida partida;
     private TextView misPuntos, misJuegos, misSets,
             susPuntos, susJuegos, susSets;
@@ -46,7 +47,14 @@ public class Contador extends Activity {
     private long[] vibrDeshacer = {01, 500, 500, 500};
     private static final String WEAR_ARRANCAR_ACTIVIDAD = "/arrancar_actividad";
     private GoogleApiClient apiClient;
-
+    //Variables para la actualizacion
+    private static final String WEAR_PUNTUACION = "/puntuacion";
+    private static final String KEY_MIS_PUNTOS = "com.example.padel.key.mis_puntos";
+    private static final String KEY_MIS_JUEGOS = "com.example.padel.key.mis_juegos";
+    private static final String KEY_MIS_SETS = "com.example.padel.key.mis_sets";
+    private static final String KEY_SUS_PUNTOS = "com.example.padel.key.sus_puntos";
+    private static final String KEY_SUS_JUEGOS = "com.example.padel.key.sus_juegos";
+    private static final String KEY_SUS_SETS = "com.example.padel.key.sus_sets";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,9 +62,7 @@ public class Contador extends Activity {
         setContentView(R.layout.contador_movil);
 
 
-
-
-         partida=new Partida();
+        partida = new Partida();
 
         vibrador = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -69,7 +75,7 @@ public class Contador extends Activity {
 
         hora = (TextView) findViewById(R.id.hora);
 
-         actualizaNumeros();
+        actualizaNumeros();
 
         View fondo = findViewById(R.id.fondo);
         fondo.setOnTouchListener(new View.OnTouchListener() {
@@ -160,6 +166,55 @@ public class Contador extends Activity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Wearable.getDataClient(this).addListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Wearable.getDataClient(this).removeListener(this);
+    }
+
+    @Override
+    public void onDataChanged(DataEventBuffer eventos) {
+        for (DataEvent evento : eventos) {
+            if (evento.getType() == DataEvent.TYPE_CHANGED) {
+                DataItem item = evento.getDataItem();
+                if (item.getUri().getPath().equals(WEAR_PUNTUACION)) {
+                    DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+
+                    final byte mispuntosR = dataMap.getByte(KEY_MIS_PUNTOS);
+
+                    final byte misjuegosR = dataMap.getByte(KEY_MIS_JUEGOS);
+                    final byte missetsR = dataMap.getByte(KEY_MIS_SETS);
+                    final byte suspuntosR = dataMap.getByte(KEY_SUS_PUNTOS);
+                    final byte susjuegosR = dataMap.getByte(KEY_SUS_JUEGOS);
+                    final byte sussetsR = dataMap.getByte(KEY_SUS_SETS);
+
+
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            misPuntos.setText(String.valueOf(mispuntosR));
+                            susPuntos.setText(String.valueOf(suspuntosR));
+                            misJuegos.setText(String.valueOf(misjuegosR));
+                            susJuegos.setText(String.valueOf(susjuegosR));
+                            misSets.setText(String.valueOf(missetsR));
+                            susSets.setText(String.valueOf(sussetsR));
+
+                            //  ((TextView) findViewById(R.id.textoContador)).setText(Integer.toString(contador));
+                        }
+                    });
+                }
+            } else if (evento.getType() == DataEvent.TYPE_DELETED) { // Algún ítem ha sido borrado
+            }
+        }
+    }
+
     void actualizaNumeros() {
         misPuntos.setText(partida.getMisPuntos());
         susPuntos.setText(partida.getSusPuntos());
@@ -181,6 +236,7 @@ public class Contador extends Activity {
 
         super.onStop();
     }
+
     private void mandarMensaje(final String path, final String texto) {
         new Thread(new Runnable() {
             @Override

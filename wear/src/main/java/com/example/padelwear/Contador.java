@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.wearable.activity.WearableActivity;
 import android.support.wearable.view.DismissOverlayView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +16,13 @@ import android.widget.TextView;
 
 import com.example.comun.DireccionesGestureDetector;
 import com.example.comun.Partida;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.Calendar;
@@ -22,7 +30,7 @@ import java.util.Date;
 
 public class Contador extends WearableActivity {
     private Partida partida;
-    private TextView misPuntos, misJuegos, misSets, susPuntos, susJuegos, susSets,hora;
+    private TextView misPuntos, misJuegos, misSets, susPuntos, susJuegos, susSets, hora;
     private Vibrator vibrador;
     private long[] vibrEntrada = {0l, 500};
     private long[] vibrDeshacer = {0l, 500, 500, 500};
@@ -30,8 +38,17 @@ public class Contador extends WearableActivity {
 
     private Typeface fuenteNormal = Typeface.create("sans-serif", Typeface.NORMAL);
     private Typeface fuenteFina = Typeface.create("sans-serif-thin", Typeface.NORMAL);
-
-
+    private static final String WEAR_ARRANCAR_ACTIVIDAD = "/arrancar_actividad";
+    private static final String WEAR_MANDAR_TEXTO = "/mandar_texto";
+    private GoogleApiClient apiClient;
+    //Variables para la actualizacion
+    private static final String WEAR_PUNTUACION = "/puntuacion";
+    private static final String KEY_MIS_PUNTOS = "com.example.padel.key.mis_puntos";
+    private static final String KEY_MIS_JUEGOS = "com.example.padel.key.mis_juegos";
+    private static final String KEY_MIS_SETS = "com.example.padel.key.mis_sets";
+    private static final String KEY_SUS_PUNTOS = "com.example.padel.key.sus_puntos";
+    private static final String KEY_SUS_JUEGOS = "com.example.padel.key.sus_juegos";
+    private static final String KEY_SUS_SETS = "com.example.padel.key.sus_sets";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +65,7 @@ public class Contador extends WearableActivity {
         susJuegos = (TextView) findViewById(R.id.susJuegos);
         misSets = (TextView) findViewById(R.id.misSets);
         susSets = (TextView) findViewById(R.id.susSets);
-hora=(TextView) findViewById(R.id.hora);
+        hora = (TextView) findViewById(R.id.hora);
         dismissOverlay = (DismissOverlayView) findViewById(R.id.dismiss_overlay);
         dismissOverlay.setIntroText("Para salir de la aplicación, haz una pulsación larga");
         dismissOverlay.showIntroIfNecessary();
@@ -133,7 +150,69 @@ hora=(TextView) findViewById(R.id.hora);
                 return true;
             }
         });
+
+        apiClient = new GoogleApiClient.Builder(this).addApi(Wearable.API).build();
+
+        mandarMensaje(WEAR_ARRANCAR_ACTIVIDAD, "");
+
+
     }
+
+
+    private void sincronizaDatos() {
+        Log.d("Padel Wear", "Sincronizando");
+        PutDataMapRequest putDataMapReq = PutDataMapRequest.create(WEAR_PUNTUACION);
+        putDataMapReq.getDataMap().putByte(KEY_MIS_PUNTOS, partida.getMisPuntosByte());
+        putDataMapReq.getDataMap().putByte(KEY_MIS_JUEGOS, partida.getMisJuegosByte());
+        putDataMapReq.getDataMap().putByte(KEY_MIS_SETS, partida.getMisSetsByte());
+        putDataMapReq.getDataMap().putByte(KEY_SUS_PUNTOS, partida.getSusPuntosByte());
+        putDataMapReq.getDataMap().putByte(KEY_SUS_JUEGOS, partida.getSusJuegosByte());
+        putDataMapReq.getDataMap().putByte(KEY_SUS_SETS, partida.getSusSetsByte());
+
+        PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+
+        Wearable.getDataClient(getApplicationContext()).putDataItem(putDataReq);
+
+
+    }
+
+
+    private void mandarMensaje(final String path, final String texto) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i("sincronizacion", "Entro");
+                NodeApi.GetConnectedNodesResult nodos = Wearable.NodeApi.getConnectedNodes(apiClient).await();
+                for (Node nodo : nodos.getNodes()) {
+                    Wearable.MessageApi.sendMessage(apiClient, nodo.getId(), path, texto.getBytes()).setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
+                        @Override
+                        public void onResult(MessageApi.SendMessageResult resultado) {
+                            Log.i("sincronizacion", resultado.getStatus().getStatusMessage());
+                            if (!resultado.getStatus().isSuccess()) {
+                                Log.e("sincronizacion", "Error al mandar mensaje. Código:" + resultado.getStatus().getStatusCode());
+                            }
+                        }
+                    });
+                }
+            }
+        }).start();
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        apiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        if (apiClient != null && apiClient.isConnected()) {
+            apiClient.disconnect();
+        }
+        super.onStop();
+    }
+
 
     void actualizaNumeros() {
         misPuntos.setText(partida.getMisPuntos());
@@ -142,6 +221,7 @@ hora=(TextView) findViewById(R.id.hora);
         susJuegos.setText(partida.getSusJuegos());
         misSets.setText(partida.getMisSets());
         susSets.setText(partida.getSusSets());
+        sincronizaDatos();
     }
 
     @Override
@@ -192,7 +272,9 @@ hora=(TextView) findViewById(R.id.hora);
     public void onUpdateAmbient() {
         super.onUpdateAmbient();
 
-        Calendar c = Calendar.getInstance(); c.setTime(new Date()); hora.setText(c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE));
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        hora.setText(c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE));
 
     }
 }

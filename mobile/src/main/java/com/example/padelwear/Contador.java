@@ -59,6 +59,8 @@ public class Contador extends Activity implements DataClient.OnDataChangedListen
     private static final String KEY_SUS_JUEGOS = "com.example.padel.key.sus_juegos";
     private static final String KEY_SUS_SETS = "com.example.padel.key.sus_sets";
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

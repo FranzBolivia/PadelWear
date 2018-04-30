@@ -17,11 +17,14 @@ import com.example.comun.DireccionesGestureDetector;
 import com.example.comun.Partida;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataClient;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
@@ -163,6 +166,47 @@ public class Contador extends Activity implements DataClient.OnDataChangedListen
         });
 
 
+        Task<DataItemBuffer> task = Wearable.getDataClient(getApplicationContext()).getDataItems();
+        task.addOnCompleteListener(new OnCompleteListener<DataItemBuffer>() {
+            @Override
+            public void onComplete(@NonNull Task<DataItemBuffer> task) {
+                for (DataItem dataItem : task.getResult()) {
+
+                    if (dataItem.getUri().getPath().equals(WEAR_PUNTUACION)) {
+                        DataMap dataMap = DataMapItem.fromDataItem(dataItem).getDataMap();
+                        final byte mispuntosR = dataMap.getByte(KEY_MIS_PUNTOS);
+                        final byte misjuegosR = dataMap.getByte(KEY_MIS_JUEGOS);
+                        final byte missetsR = dataMap.getByte(KEY_MIS_SETS);
+                        final byte suspuntosR = dataMap.getByte(KEY_SUS_PUNTOS);
+                        final byte susjuegosR = dataMap.getByte(KEY_SUS_JUEGOS);
+                        final byte sussetsR = dataMap.getByte(KEY_SUS_SETS);
+
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                misPuntos.setText(String.valueOf(mispuntosR));
+                                susPuntos.setText(String.valueOf(suspuntosR));
+                                misJuegos.setText(String.valueOf(misjuegosR));
+                                susJuegos.setText(String.valueOf(susjuegosR));
+                                misSets.setText(String.valueOf(missetsR));
+                                susSets.setText(String.valueOf(sussetsR));
+
+
+                            }
+                        });
+                    }
+
+
+
+
+
+                }
+//                dataItems.release();
+            }
+        });
+
+
     }
 
 
@@ -193,7 +237,6 @@ public class Contador extends Activity implements DataClient.OnDataChangedListen
                     final byte suspuntosR = dataMap.getByte(KEY_SUS_PUNTOS);
                     final byte susjuegosR = dataMap.getByte(KEY_SUS_JUEGOS);
                     final byte sussetsR = dataMap.getByte(KEY_SUS_SETS);
-
 
 
                     runOnUiThread(new Runnable() {

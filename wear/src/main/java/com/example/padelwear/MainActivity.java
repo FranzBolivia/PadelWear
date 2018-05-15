@@ -16,7 +16,7 @@ import android.widget.Toast;
 
 public class MainActivity extends WearableActivity {
     String[] elementos = {"Partida", "Terminar partida", "Historial",
-            "Notificación", "Pasos", "Pulsaciones", "Terminar partida", "Dismiss"};
+            "Jugadores", "Pasos", "Pulsaciones", "Terminar partida", "Dismiss","Pasos Cuenta"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +45,18 @@ public class MainActivity extends WearableActivity {
                                                      case 2:
                                                          startActivity(new Intent(MainActivity.this, Historial.class));
                                                          break;
+                                                     case 3: startActivity(new Intent(MainActivity.this, Jugadores.class)); break;
                                                      case 4:
                                                          startActivity(new Intent(MainActivity.this, Pasos.class));
                                                          break;
+                                                     case 5:
+                                                         startActivity(new Intent(MainActivity.this, Cardio.class));
+                                                         break;
                                                      case 7:
                                                          startActivity(new Intent(MainActivity.this, SwipeDismiss.class));
+                                                         break;
+                                                     case 8:
+                                                         startActivity(new Intent(MainActivity.this, Pasos2.class));
                                                          break;
 
                                                  }
